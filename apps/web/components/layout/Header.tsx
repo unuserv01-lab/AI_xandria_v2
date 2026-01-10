@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Sparkles, Home, PlusCircle, Swords, ShoppingBag, User, Menu, X } from 'lucide-react';
-import Link from 'link';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useWallet } from '@solana/wallet-adapter-react';
