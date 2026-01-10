@@ -21,8 +21,28 @@ export default function Header() {
   const { connected } = useWallet();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Mouse tracking for glow effect
+  const handleMouseMove = (e: React.MouseEvent) => {
+    const cards = document.querySelectorAll('.glow-track');
+    cards.forEach((card) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      (card as HTMLElement).style.setProperty('--mouse-x', `${x}px`);
+      (card as HTMLElement).style.setProperty('--mouse-y', `${y}px`);
+    });
+  };
+
   return (
-    <header className="sticky top-0 z-40 bg-bg-dark/95 backdrop-blur-lg border-b border-gray-800">
+    <header 
+      className="sticky top-0 z-40 border-b border-gray-800/50"
+      onMouseMove={handleMouseMove}
+      style={{
+        background: 'rgba(10, 10, 15, 0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+      }}
+    >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -30,11 +50,14 @@ export default function Header() {
             <motion.div
               whileHover={{ rotate: 180 }}
               transition={{ duration: 0.3 }}
-              className="w-8 h-8 bg-gradient-to-br from-purple-primary to-cyan-accent rounded-lg flex items-center justify-center"
+              className="relative w-8 h-8 rounded-lg overflow-hidden glow-track"
             >
-              <Sparkles className="w-5 h-5 text-white" />
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/30 to-cyan-accent/30" />
+              <div className="absolute inset-[1px] rounded-lg bg-bg-dark/80 backdrop-blur-sm flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-purple-primary" />
+              </div>
             </motion.div>
-            <span className="text-xl font-display font-bold bg-gradient-to-r from-purple-primary to-cyan-accent bg-clip-text text-transparent">
+            <span className="text-xl font-display font-bold bg-gradient-to-r from-purple-primary via-purple-mid to-cyan-accent bg-clip-text text-transparent">
               AI_xandria
             </span>
           </Link>
@@ -44,20 +67,21 @@ export default function Header() {
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
-              
+
               return (
                 <Link key={item.href} href={item.href}>
                   <motion.div
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className={`px-4 py-2 rounded-lg flex items-center gap-2 transition-colors ${
+                    className={`relative px-4 py-2 rounded-lg flex items-center gap-2 transition-all duration-300 ${
                       isActive
-                        ? 'bg-purple-primary text-white'
-                        : 'text-gray-400 hover:text-white hover:bg-gray-800'
-                    }`}
+                        ? 'text-white'
+                        : 'text-gray-400 hover:text-white'
+                    } glow-track`}
                   >
-                    <Icon className="w-4 h-4" />
-                    <span className="font-medium">{item.label}</span>
+                    <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-primary/10 to-cyan-accent/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Icon className="w-4 h-4 relative z-10" />
+                    <span className="font-medium relative z-10">{item.label}</span>
                   </motion.div>
                 </Link>
               );
@@ -65,14 +89,21 @@ export default function Header() {
           </nav>
 
           {/* Wallet Button */}
-          <div className="hidden md:block">
-            <WalletMultiButton className="!bg-gradient-to-r !from-purple-primary !to-purple-mid hover:!scale-105 transition-transform" />
+          <div className="hidden md:block glow-track">
+            <WalletMultiButton 
+              className="!relative !px-4 !py-2 !rounded-lg !transition-all !duration-300 hover:!scale-105"
+              style={{
+                background: 'rgba(147, 51, 234, 0.15)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(147, 51, 234, 0.3)',
+              }}
+            />
           </div>
 
           {/* Mobile Menu Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-2 hover:bg-gray-800 rounded-lg transition-colors"
+            className="md:hidden p-2 hover:bg-gray-800/30 rounded-lg transition-colors"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
@@ -83,21 +114,24 @@ export default function Header() {
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="md:hidden py-4 space-y-2"
+            className="md:hidden py-4 space-y-2 border-t border-gray-800/50 mt-2"
+            style={{
+              background: 'rgba(10, 10, 15, 0.95)',
+              backdropFilter: 'blur(20px)',
+            }}
           >
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
-              
               return (
                 <Link
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileMenuOpen(false)}
-                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-lg transition-all ${
                     isActive
-                      ? 'bg-purple-primary text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                      ? 'bg-gradient-to-r from-purple-primary/20 to-cyan-accent/20 text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800/30'
                   }`}
                 >
                   <Icon className="w-5 h-5" />
@@ -105,9 +139,16 @@ export default function Header() {
                 </Link>
               );
             })}
-            
-            <div className="pt-2">
-              <WalletMultiButton className="w-full !bg-gradient-to-r !from-purple-primary !to-purple-mid" />
+
+            <div className="pt-2 px-4">
+              <WalletMultiButton 
+                className="w-full !justify-center !px-4 !py-3 !rounded-lg !transition-all"
+                style={{
+                  background: 'rgba(147, 51, 234, 0.15)',
+                  backdropFilter: 'blur(12px)',
+                  border: '1px solid rgba(147, 51, 234, 0.3)',
+                }}
+              />
             </div>
           </motion.div>
         )}
